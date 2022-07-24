@@ -1,0 +1,64 @@
+name:
+  Extract to artifact
+
+description: >
+  Pulls (if not pulled already) an image from a container registry,
+  extracts some folder or file from it and uploads it to artifacts
+
+inputs:
+  image:
+    description: >
+      Full image link: {username}/{repository}:{tag}
+    required: true
+
+  folder-path:
+    description: >
+      Path to the folder or file without the filename itself 
+      (see also `filename` argument)
+    required: true
+
+  filename:
+    description: >
+      Filename if extracting a file. Leave empty to extract a folder 
+      (see also `folder-path` argument)
+    default: ""
+    required: true
+
+  artifact-name:
+    description: >
+      Artifact name
+      (see also: https://github.com/actions/upload-artifact)
+    required: true
+    default: artifact
+
+  retention-days:
+    description: >
+      Duration after which artifact will expire in days, 1-90 days, 
+      0 to use default retention default 
+      (see also: https://github.com/actions/upload-artifact)
+    required: false
+
+  if-no-files-found:
+    description: >
+      The desired behavior if no files are found using the 
+      provided path & filename. Options: warn, error or ignore
+      (see also: https://github.com/actions/upload-artifact)
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - id: extract
+      name: Extract docs for later step
+      uses: shrink/actions-docker-extract@v1
+      with:
+        image: ${{ inputs.image }}
+        path: ${{ inputs.folder-path }}/${{ inputs.filename }}
+
+    - name: Upload doc artifact for later step
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.extract.outputs.destination }}/${{ inputs.filename }}
+        retention-days: ${{ inputs.retention-days }}
+        if-no-files-found: ${{ inputs.if-no-files-found }}
