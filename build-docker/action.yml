@@ -1,0 +1,65 @@
+name:
+  Docker login, setup, build & push
+
+description: >
+  Logins into a docker container registry, 
+  sets up the builder, then builds & pushes an image
+
+inputs:
+  username:
+    description: >
+      Username to use to log into the registry
+      (see also https://github.com/docker/login-action#inputs)
+    required: true
+
+  password:
+    description: >
+      Password or access token to use to log into the registry
+      (see also https://github.com/docker/login-action#inputs)
+    required: true
+
+  registry:
+    description: >
+      Registry's hostname defaults to using Docker Hub 
+      (see also https://github.com/docker/login-action#inputs)
+    required: false
+
+  repository:
+    description: >
+      Repository's name to push the image to
+      Full link will be compiled as `{username}/{repository}:{tag}` for the actual image
+      and as `{username}/{repository}:{tag}-build-cache` for the build cache
+    required: true
+
+  tag:
+    description: >
+      Tag name inside repository to push the image to
+      Full link will be compiled as `{username}/{repository}:{tag}` for the actual image
+      and as `{username}/{repository}:{tag}-build-cache` for the build cache
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build and push (PR)
+      uses: docker/build-push-action@v2
+      env:
+        DOCKER_FULL: ${{ inputs.username }}/${{ inputs.repository }}:${{ inputs.tag }}
+      with:
+        context: ./
+        file: ./Dockerfile
+        builder: ${{ steps.buildx.outputs.name }}
+        push: true
+        tags: $DOCKER_FULL
+        cache-from: type=registry,ref=$DOCKER_FULL-build-cache
+        cache-to: type=registry,ref=$DOCKER_FULL-build-cache,mode=max
