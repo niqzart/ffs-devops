@@ -60,6 +60,6 @@ runs:
         file: ./Dockerfile
         builder: ${{ steps.buildx.outputs.name }}
         push: true
-        tags: $DOCKER_FULL
+        tags: ${{ env.DOCKER_FULL }}
         cache-from: type=registry,ref=$DOCKER_FULL-build-cache
         cache-to: type=registry,ref=$DOCKER_FULL-build-cache,mode=max
