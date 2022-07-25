@@ -61,5 +61,5 @@ runs:
         builder: ${{ steps.buildx.outputs.name }}
         push: true
         tags: ${{ env.DOCKER_FULL }}
-        cache-from: type=registry,ref=$DOCKER_FULL-build-cache
-        cache-to: type=registry,ref=$DOCKER_FULL-build-cache,mode=max
+        cache-from: type=registry,ref=${{ env.DOCKER_FULL }}-build-cache
+        cache-to: type=registry,ref=${{ env.DOCKER_FULL }}-build-cache,mode=max
