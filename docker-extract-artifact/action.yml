@@ -36,14 +36,16 @@ inputs:
       Duration after which artifact will expire in days, 1-90 days, 
       0 to use default retention default 
       (see also: https://github.com/actions/upload-artifact)
-    required: false
+    required: true
+    default: 0
 
   if-no-files-found:
     description: >
       The desired behavior if no files are found using the 
       provided path & filename. Options: warn, error or ignore
       (see also: https://github.com/actions/upload-artifact)
-    required: false
+    required: true
+    default: warn
 
 runs:
   using: composite
