@@ -1,0 +1,55 @@
+name:
+  Generates asyncapi documentation from json or yml
+
+description: >
+  Uses asyncapi generator to AsyncAPI specification file into 'whatever you want'
+  (see also https://github.com/asyncapi/generator)
+
+inputs:
+  template:
+    description: >
+      AsyncAPI generator template's name
+      Specifies what exactly must be generated from the specification file
+      (see also https://github.com/asyncapi/generator#list-of-official-generator-templates)
+    required: true
+
+  input:
+    description: >
+      Path to the AsyncAPI specification file, can be
+      relative, for example `./async-api.json`
+      (see also https://github.com/asyncapi/generator#cli-usage)
+    required: true
+
+  output:
+    description: >
+      Path to a folder where the output will be put
+      (see also https://github.com/asyncapi/generator#cli-usage)
+    required: true
+    default: artifact
+
+  parameters:
+    description: >
+      Other parameters for the AsyncAPI Generator
+      (see also https://github.com/asyncapi/generator#cli-usage)
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Install node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
+
+    - name: Install asyncapi generator
+      run: npm install -g @asyncapi/generator ${{ inputs.template }}
+      shell: sh
+
+    - name: Generate docs
+      run: >
+        ag ${{ inputs.input }}
+        ${{ inputs.template }}
+        --force-write
+        ${{ inputs.parameters }}
+        ${{ inputs.output }}
+      shell: sh
