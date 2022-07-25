@@ -37,7 +37,7 @@ inputs:
       0 to use default retention default 
       (see also: https://github.com/actions/upload-artifact)
     required: true
-    default: 0
+    default: "0"
 
   if-no-files-found:
     description: >
