@@ -52,6 +52,12 @@ inputs:
     required: false
     default: ./Dockerfile
 
+  arguments:
+    description: >
+      Build arguments passed to docker build
+      (see also https://github.com/docker/build-push-action#inputs)
+    required: false
+
   target:
     description: >
       Sets the target stage to build for multi-stage Dockerfiles
@@ -84,6 +90,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         target: ${{ inputs.target }}
         builder: ${{ steps.buildx.outputs.name }}
+        build-args: ${{ inputs.arguments }}
         push: true
         tags: ${{ env.DOCKER_FULL }}
         cache-from: type=registry,ref=${{ env.DOCKER_FULL }}-build-cache
