@@ -38,6 +38,12 @@ inputs:
       and as `{username}/{repository}:{tag}-build-cache` for the build cache
     required: true
 
+  base-tag:
+    description: >
+      Tag name inside repository to take cache from if this is the first build for current tag
+      Full link will be compiled as `{username}/{repository}:{base-tag}-build-cache`
+    required: false
+
   context:
     description: >
       Relative path to the context directory, which should be used for the build
@@ -85,6 +91,7 @@ runs:
       uses: docker/build-push-action@v4
       env:
         DOCKER_FULL: ${{ inputs.username }}/${{ inputs.repository }}:${{ inputs.tag }}
+        BASE_CACHE_FROM: type=registry,ref=${{ inputs.username }}/${{ inputs.repository }}:${{ inputs.base-tag }}-build-cache
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
@@ -93,5 +100,7 @@ runs:
         build-args: ${{ inputs.arguments }}
         push: true
         tags: ${{ env.DOCKER_FULL }}
-        cache-from: type=registry,ref=${{ env.DOCKER_FULL }}-build-cache
+        cache-from: |
+          type=registry,ref=${{ env.DOCKER_FULL }}-build-cache
+          ${{ inputs.base-tag && env.BASE_CACHE_FROM || '' }}
         cache-to: type=registry,ref=${{ env.DOCKER_FULL }}-build-cache,mode=max
