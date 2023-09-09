@@ -39,7 +39,7 @@ runs:
     - name: Install node
       uses: actions/setup-node@v3
       with:
-        node-version: 14
+        node-version: 18
 
     - name: Install asyncapi generator
       run: npm install -g @asyncapi/generator ${{ inputs.template }}
